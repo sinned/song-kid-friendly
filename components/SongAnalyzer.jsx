@@ -14,6 +14,32 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+const getColorFromText = (text) => {
+  if (!text) return 'bg-gray-50';
+  
+  // Simple hash function to generate a number from text
+  const hash = text.split('').reduce((acc, char) => {
+    return char.charCodeAt(0) + ((acc << 5) - acc);
+  }, 0);
+  
+  // Use an array of predefined Tailwind colors
+  const colors = [
+    'bg-blue-50',
+    'bg-purple-50',
+    'bg-pink-50',
+    'bg-indigo-50',
+    'bg-teal-50',
+    'bg-cyan-50',
+    'bg-rose-50',
+    'bg-fuchsia-50',
+    'bg-violet-50',
+    'bg-sky-50',
+  ];
+  
+  // Select a color based on the hash
+  return colors[Math.abs(hash) % colors.length];
+};
+
 const SongAnalyzer = () => {
   const [lyrics, setLyrics] = useState('');
   const [result, setResult] = useState(null);
@@ -23,7 +49,8 @@ const SongAnalyzer = () => {
   const [rawApiOutput, setRawApiOutput] = useState('');
 
   const handleLyricsChange = (e) => {
-    setLyrics(e.target.value);
+    const newLyrics = e.target.value;
+    setLyrics(newLyrics);
     // Clear the result when lyrics change
     if (result) {
       setResult(null);
@@ -67,15 +94,19 @@ const SongAnalyzer = () => {
   };
 
   const getBackgroundColor = () => {
-    if (!result || isAdvancedMode) return 'bg-gray-50';
-    switch (result) {
-      case 'TRUE':
-        return 'bg-green-50';
-      case 'FALSE':
-        return 'bg-red-50';
-      default:
-        return 'bg-yellow-50';
+    if (result) {
+      if (isAdvancedMode) return 'bg-gray-50';
+      switch (result) {
+        case 'TRUE':
+          return 'bg-green-50';
+        case 'FALSE':
+          return 'bg-red-50';
+        default:
+          return 'bg-yellow-50';
+      }
     }
+    // Return dynamic color based on lyrics when no result
+    return getColorFromText(lyrics);
   };
 
   const getResultDisplay = () => {
@@ -171,7 +202,7 @@ const SongAnalyzer = () => {
   };
 
   return (
-    <div className={`min-h-screen ${getBackgroundColor()} transition-colors duration-500`}>
+    <div className={`min-h-screen ${getBackgroundColor()} transition-all duration-700`}>
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto bg-white">
           <CardHeader>
