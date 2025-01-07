@@ -10,9 +10,11 @@ const SongAnalyzer = () => {
   const [lyrics, setLyrics] = useState('');
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const analyzeLyrics = async () => {
     setIsLoading(true);
+    setError('');
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -21,13 +23,25 @@ const SongAnalyzer = () => {
         },
         body: JSON.stringify({ lyrics }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setResult(data.result);
     } catch (error) {
       console.error('Error analyzing lyrics:', error);
+      setError(error.message || 'Error analyzing lyrics');
       setResult('UNKNOWN');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const getBackgroundColor = () => {
@@ -66,9 +80,14 @@ const SongAnalyzer = () => {
     const ResultIcon = config[result].icon;
 
     return (
-      <div className={`flex items-center gap-2 ${config[result].color}`}>
-        <ResultIcon className="w-6 h-6" />
-        <span className="text-lg font-semibold">{config[result].text}</span>
+      <div className="space-y-2">
+        <div className={`flex items-center gap-2 ${config[result].color}`}>
+          <ResultIcon className="w-6 h-6" />
+          <span className="text-lg font-semibold">{config[result].text}</span>
+        </div>
+        {error && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
       </div>
     );
   };
