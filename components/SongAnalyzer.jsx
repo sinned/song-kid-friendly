@@ -59,7 +59,6 @@ const SongAnalyzer = () => {
         setRawApiOutput(data.rawOutput);
       }
     } catch (error) {
-      console.error('Error analyzing lyrics:', error);
       setError(error.message || 'Error analyzing lyrics');
       setResult(isAdvancedMode ? null : 'FALSE');
     } finally {

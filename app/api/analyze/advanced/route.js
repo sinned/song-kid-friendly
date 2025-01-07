@@ -42,23 +42,19 @@ Ensure the response is valid JSON. Be thorough but concise in the summary.`
     const rawOutput = completion.choices[0].message.content;
     
     try {
-      // Parse the JSON response
       const parsedResult = JSON.parse(rawOutput);
       
-      // Return both the parsed result and raw output
       return NextResponse.json({ 
         result: parsedResult,
         rawOutput 
       });
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
       return NextResponse.json(
         { error: 'Failed to parse AI response' },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Error:', error);
     return NextResponse.json(
       { error: 'Failed to analyze lyrics' },
       { status: 500 }
