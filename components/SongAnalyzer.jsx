@@ -128,12 +128,37 @@ const SongAnalyzer = () => {
             valueColor={result.explicit ? 'text-red-600' : 'text-green-600'}
           />
         </div>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="font-semibold flex items-center gap-2 mb-2">
-            <Info className="w-5 h-5" />
-            Song Analysis
-          </h3>
-          <p className="text-gray-700">{result.summary}</p>
+        <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+          <div>
+            <h3 className="font-semibold flex items-center gap-2 mb-2">
+              <Info className="w-5 h-5" />
+              Song Analysis
+            </h3>
+            <p className="text-gray-700">{result.summary}</p>
+          </div>
+          
+          {result.themes && result.themes.length > 0 && (
+            <div>
+              <h4 className="font-medium text-sm text-gray-600 mb-2">Main Themes</h4>
+              <div className="flex flex-wrap gap-2">
+                {result.themes.map((theme, index) => (
+                  <span 
+                    key={index}
+                    className="px-2 py-1 bg-gray-100 rounded-full text-sm text-gray-700"
+                  >
+                    {theme}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {result.mood && (
+            <div>
+              <h4 className="font-medium text-sm text-gray-600 mb-1">Overall Mood</h4>
+              <p className="text-gray-700">{result.mood}</p>
+            </div>
+          )}
         </div>
         {error && (
           <p className="text-sm text-red-500">{error}</p>

@@ -20,34 +20,43 @@ export async function POST(req) {
       messages: [
         {
           role: "system",
-          content: "You are a music analyst. Analyze the given lyrics and provide information about the genre, whether it contains explicit content, and a brief summary of the song's meaning. Be thorough but concise."
+          content: `You are a music analyst. Analyze the given lyrics and provide a JSON response with the following structure:
+{
+  "genre": "the most likely musical genre",
+  "explicit": boolean indicating if content is explicit,
+  "summary": "a brief summary of the song's meaning",
+  "themes": ["array", "of", "main", "themes"],
+  "mood": "overall mood of the song"
+}
+Ensure the response is valid JSON. Be thorough but concise in the summary.`
         },
         {
           role: "user",
-          content: `Please analyze these lyrics and provide: 1) The most likely genre 2) Whether it contains explicit content 3) A brief summary of what the song means:\n\n${lyrics}`
+          content: `Analyze these lyrics and provide the analysis in the specified JSON format:\n\n${lyrics}`
         }
       ],
       model: "gpt-3.5-turbo",
+      response_format: { type: "json_object" } // This ensures JSON output for compatible models
     });
 
-    const analysis = completion.choices[0].message.content;
+    const rawOutput = completion.choices[0].message.content;
     
-    // Parse the response into structured data
-    // You might want to make this parsing more robust
-    const genreMatch = analysis.match(/genre:?\s*([^.!?\n]+)/i);
-    const explicitMatch = analysis.match(/explicit:?\s*([^.!?\n]+)/i);
-    const summaryMatch = analysis.match(/summary:?\s*([^.!?\n]+)/i);
-
-    const result = {
-      genre: genreMatch ? genreMatch[1].trim() : 'Unknown',
-      explicit: explicitMatch ? explicitMatch[1].toLowerCase().includes('yes') : false,
-      summary: summaryMatch ? summaryMatch[1].trim() : 'Unable to determine meaning',
-    };
-
-    return NextResponse.json({ 
-      result,
-      rawOutput: analysis
-    });
+    try {
+      // Parse the JSON response
+      const parsedResult = JSON.parse(rawOutput);
+      
+      // Return both the parsed result and raw output
+      return NextResponse.json({ 
+        result: parsedResult,
+        rawOutput 
+      });
+    } catch (parseError) {
+      console.error('Error parsing AI response:', parseError);
+      return NextResponse.json(
+        { error: 'Failed to parse AI response' },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
