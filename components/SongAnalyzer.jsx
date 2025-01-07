@@ -83,33 +83,37 @@ const SongAnalyzer = () => {
     if (!result) return null;
     
     if (!isAdvancedMode) {
-      // Keep existing basic result display logic
-      const config = {
-        TRUE: {
-          icon: CheckCircle,
-          text: 'Kid Friendly',
-          color: 'text-green-600',
-        },
-        FALSE: {
-          icon: XCircle,
-          text: 'Not Kid Friendly',
-          color: 'text-red-600',
-        }
-      };
+      // Add type check for basic mode
+      if (typeof result === 'string') {
+        const config = {
+          TRUE: {
+            icon: CheckCircle,
+            text: 'Kid Friendly',
+            color: 'text-green-600',
+          },
+          FALSE: {
+            icon: XCircle,
+            text: 'Not Kid Friendly',
+            color: 'text-red-600',
+          }
+        };
 
-      const ResultIcon = config[result].icon;
+        const ResultIcon = config[result]?.icon;  // Add optional chaining
+        if (!ResultIcon) return null;  // Safety check
 
-      return (
-        <div className="space-y-2">
-          <div className={`flex items-center gap-2 ${config[result].color}`}>
-            <ResultIcon className="w-6 h-6" />
-            <span className="text-lg font-semibold">{config[result].text}</span>
+        return (
+          <div className="space-y-2">
+            <div className={`flex items-center gap-2 ${config[result].color}`}>
+              <ResultIcon className="w-6 h-6" />
+              <span className="text-lg font-semibold">{config[result].text}</span>
+            </div>
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
           </div>
-          {error && (
-            <p className="text-sm text-red-500">{error}</p>
-          )}
-        </div>
-      );
+        );
+      }
+      return null;  // Return null if result is not in the expected format
     }
 
     // Advanced result display
@@ -181,7 +185,12 @@ const SongAnalyzer = () => {
                 <span className="text-sm text-gray-600">Advanced Mode</span>
                 <Switch
                   checked={isAdvancedMode}
-                  onCheckedChange={setIsAdvancedMode}
+                  onCheckedChange={(checked) => {
+                    setIsAdvancedMode(checked);
+                    setResult(null);  // Clear results when switching modes
+                    setError('');
+                    setRawApiOutput('');
+                  }}
                 />
               </div>
             </div>
