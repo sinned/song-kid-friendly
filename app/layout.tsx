@@ -4,7 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Song Analyzer",
+  title: "Song Analyzer Yah",
   description: "Analyze song lyrics for content and meaning",
 };
 
