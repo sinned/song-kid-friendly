@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { sampleSongs } from '@/data/sample-songs';
 
 const getColorFromText = (text) => {
   if (!text) return 'bg-gray-50';
@@ -47,6 +48,13 @@ const SongAnalyzer = () => {
   const [error, setError] = useState('');
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
   const [rawApiOutput, setRawApiOutput] = useState('');
+
+  const loadSampleSong = (songKey) => {
+    setLyrics(sampleSongs[songKey]);
+    setResult(null);
+    setError('');
+    setRawApiOutput('');
+  };
 
   const handleLyricsChange = (e) => {
     const newLyrics = e.target.value;
@@ -227,13 +235,26 @@ const SongAnalyzer = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div>
+              <div className="space-y-4">
                 <Textarea
                   placeholder="Paste song lyrics here..."
                   className="min-h-[200px]"
                   value={lyrics}
                   onChange={handleLyricsChange}
                 />
+                <div className="flex gap-2 flex-wrap">
+                  <span className="text-sm text-gray-500">Try a sample:</span>
+                  {Object.keys(sampleSongs).map((songName) => (
+                    <Button
+                      key={songName}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => loadSampleSong(songName)}
+                    >
+                      {songName}
+                    </Button>
+                  ))}
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
