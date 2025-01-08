@@ -36,7 +36,7 @@ Ensure the response is valid JSON. Be thorough but concise in the summary.`
         }
       ],
       model: "gpt-3.5-turbo",
-      response_format: { type: "json_object" } // This ensures JSON output for compatible models
+      response_format: { type: "json_object" }
     });
 
     const rawOutput = completion.choices[0].message.content;
@@ -48,16 +48,16 @@ Ensure the response is valid JSON. Be thorough but concise in the summary.`
         result: parsedResult,
         rawOutput 
       });
-    } catch (parseError) {
+    } catch (_parseError) {  // Added underscore here
       return NextResponse.json(
         { error: 'Failed to parse AI response' },
         { status: 500 }
       );
     }
-  } catch (error) {
+  } catch (_error) {  // Added underscore here
     return NextResponse.json(
       { error: 'Failed to analyze lyrics' },
       { status: 500 }
     );
   }
-} 
+}
