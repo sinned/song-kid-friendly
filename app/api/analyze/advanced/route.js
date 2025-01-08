@@ -48,13 +48,13 @@ Ensure the response is valid JSON. Be thorough but concise in the summary.`
         result: parsedResult,
         rawOutput 
       });
-    } catch (_parseError) {  // Added underscore here
+    } catch {  // Removed parameter entirely
       return NextResponse.json(
         { error: 'Failed to parse AI response' },
         { status: 500 }
       );
     }
-  } catch (_error) {  // Added underscore here
+  } catch {  // Removed parameter entirely
     return NextResponse.json(
       { error: 'Failed to analyze lyrics' },
       { status: 500 }
