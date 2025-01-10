@@ -46,7 +46,7 @@ const SongAnalyzer = () => {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  const [isAdvancedMode, setIsAdvancedMode] = useState(true);
   const [rawApiOutput, setRawApiOutput] = useState('');
   const [title, setTitle] = useState('');
 
