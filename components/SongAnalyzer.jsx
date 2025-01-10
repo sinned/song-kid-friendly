@@ -48,8 +48,10 @@ const SongAnalyzer = () => {
   const [error, setError] = useState('');
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
   const [rawApiOutput, setRawApiOutput] = useState('');
+  const [title, setTitle] = useState('');
 
   const loadSampleSong = (songKey) => {
+    setTitle(songKey);
     setLyrics(sampleSongs[songKey]);
     setResult(null);
     setError('');
@@ -75,7 +77,7 @@ const SongAnalyzer = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ lyrics }),
+        body: JSON.stringify({ lyrics, title }),
       });
 
       if (!response.ok) {
@@ -157,6 +159,11 @@ const SongAnalyzer = () => {
     // Advanced result display
     return (
       <div className="space-y-4 w-full">
+        {result.title && (
+          <div className="text-lg font-semibold text-gray-900">
+            {result.title}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4">
           <ResultCard
             title="Genre"
@@ -236,6 +243,13 @@ const SongAnalyzer = () => {
           <CardContent>
             <div className="space-y-6">
               <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Song title (optional)"
+                  className="w-full px-3 py-2 border rounded-md"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
                 <Textarea
                   placeholder="Paste song lyrics here..."
                   className="min-h-[200px]"
