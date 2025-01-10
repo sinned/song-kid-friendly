@@ -46,7 +46,7 @@ const SongAnalyzer = () => {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isAdvancedMode, setIsAdvancedMode] = useState(true);
+  const [mode, setMode] = useState('basic'); // 'basic', 'advanced', or 'freeplay'
   const [rawApiOutput, setRawApiOutput] = useState('');
   const [title, setTitle] = useState('');
 
@@ -72,7 +72,11 @@ const SongAnalyzer = () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(`/api/analyze${isAdvancedMode ? '/advanced' : ''}`, {
+      let endpoint = '/api/analyze';
+      if (mode === 'advanced') endpoint += '/advanced';
+      if (mode === 'freeplay') endpoint += '/freeplay';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,13 +95,13 @@ const SongAnalyzer = () => {
       }
 
       setResult(data.result);
-      // Store the raw output if in advanced mode
-      if (isAdvancedMode && data.rawOutput) {
+      // Store the raw output if in advanced or freeplay mode
+      if ((mode === 'advanced' || mode === 'freeplay') && data.rawOutput) {
         setRawApiOutput(data.rawOutput);
       }
     } catch (error) {
       setError(error.message || 'Error analyzing lyrics');
-      setResult(isAdvancedMode ? null : 'FALSE');
+      setResult(mode === 'basic' ? 'FALSE' : null);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +109,7 @@ const SongAnalyzer = () => {
 
   const getBackgroundColor = () => {
     if (result) {
-      if (isAdvancedMode) return 'bg-gray-50';
+      if (mode !== 'basic') return 'bg-gray-50';
       switch (result) {
         case 'TRUE':
           return 'bg-green-50';
@@ -122,7 +126,7 @@ const SongAnalyzer = () => {
   const getResultDisplay = () => {
     if (!result) return null;
     
-    if (!isAdvancedMode) {
+    if (!mode === 'basic') {
       // Add type check for basic mode
       if (typeof result === 'string') {
         const config = {
@@ -226,17 +230,24 @@ const SongAnalyzer = () => {
                 <Music className="w-6 h-6" />
                 Song Analyzer
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Advanced Mode</span>
-                <Switch
-                  checked={isAdvancedMode}
-                  onCheckedChange={(checked) => {
-                    setIsAdvancedMode(checked);
-                    setResult(null);  // Clear results when switching modes
-                    setError('');
-                    setRawApiOutput('');
-                  }}
-                />
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">Mode:</span>
+                  <select
+                    value={mode}
+                    onChange={(e) => {
+                      setMode(e.target.value);
+                      setResult(null);
+                      setError('');
+                      setRawApiOutput('');
+                    }}
+                    className="px-2 py-1 border rounded-md text-sm"
+                  >
+                    <option value="basic">Basic</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="freeplay">Freeplay</option>
+                  </select>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -278,7 +289,7 @@ const SongAnalyzer = () => {
                 >
                   {isLoading ? 'Analyzing...' : 'Check'}
                 </Button>
-                {isAdvancedMode && result && (
+                {mode === 'advanced' && result && (
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="icon" className="w-10">
