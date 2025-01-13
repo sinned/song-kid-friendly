@@ -4,7 +4,8 @@ import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 
 const fpClient = new Freeplay({
-  apiKey: process.env.FREEPLAY_API_KEY
+  apiKey: process.env.FREEPLAY_API_KEY,
+  baseUrl: "https://app.freeplay.ai/api"
 });
 
 const openai = new OpenAI({
@@ -31,7 +32,7 @@ export async function POST(req) {
 
     const formattedPrompt = await fpClient.prompts.getFormatted({
       projectId: process.env.FREEPLAY_PROJECT_ID,
-      templateName: "Song Analyzer",
+      templateName: "song_analyzer",
       environment: "prod",
       variables: promptVars
     });
