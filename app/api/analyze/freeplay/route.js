@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import Freeplay, { getCallInfo, getSessionInfo } from 'freeplay/thin';
+import Freeplay, { getCallInfo } from 'freeplay/thin';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 
