@@ -1,58 +1,40 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Music, Search, Loader2, Shuffle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, Shuffle } from 'lucide-react';
 import { useDebounce } from '@/lib/hooks';
 
 const SongSelector = ({ onSongSelect }) => {
   const [songs, setSongs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const debouncedSearch = useDebounce(searchTerm, 300);
 
-  const loadSongs = useCallback(async (reset = false) => {
-    if (!hasMore && !reset) return;
-    
-    const currentPage = reset ? 1 : page;
+  const loadSongs = async () => {
     setLoading(true);
-    
     try {
-      const response = await fetch(
-        `/api/songs?q=${encodeURIComponent(debouncedSearch)}&page=${currentPage}&limit=20`
-      );
+      const response = await fetch(`/api/songs?q=${encodeURIComponent(debouncedSearch)}&limit=50`);
       const data = await response.json();
-      
-      if (data.error) throw new Error(data.error);
-      
-      setSongs(prev => reset ? data.songs : [...prev, ...data.songs]);
-      setHasMore(currentPage < data.totalPages);
-      if (!reset) setPage(currentPage + 1);
+      setSongs(data.songs);
     } catch (error) {
       console.error('Failed to load songs:', error);
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page, hasMore]);
+  };
 
   const handleSongSelect = async (title) => {
     try {
       const response = await fetch('/api/songs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title })
       });
-      
       const song = await response.json();
       if (song.error) throw new Error(song.error);
-      
       onSongSelect(song);
     } catch (error) {
       console.error('Failed to load song details:', error);
@@ -73,81 +55,54 @@ const SongSelector = ({ onSongSelect }) => {
     }
   };
 
-  // Load initial songs
   useEffect(() => {
-    loadSongs(true);
+    loadSongs();
   }, [debouncedSearch]);
 
-  // Intersection Observer for infinite scroll
-  const lastSongRef = useCallback(node => {
-    if (loading) return;
-    
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadSongs();
-      }
-    });
-    
-    if (node) observer.observe(node);
-  }, [loading, hasMore, loadSongs]);
-
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Music className="w-5 h-5" />
-            Song Library
-          </CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRandomSong}
-            disabled={loading}
-            className="flex items-center gap-1"
-          >
-            <Shuffle className="w-4 h-4" />
-            Random
-          </Button>
-        </div>
-        <div className="relative">
+    <div className="w-full space-y-2">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Search songs or artists..."
+            placeholder="Browse songs..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setSongs([]);
-              setPage(1);
-              setHasMore(true);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-8"
           />
         </div>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-2">
-            {songs.map((song, index) => (
-              <button
-                key={song.title}
-                ref={index === songs.length - 1 ? lastSongRef : null}
-                onClick={() => handleSongSelect(song.title)}
-                className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200 space-y-1"
-              >
-                <div className="font-medium">{song.title}</div>
-                <div className="text-sm text-gray-600">{song.artist}</div>
-              </button>
-            ))}
-            {loading && (
-              <div className="flex justify-center py-4">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRandomSong}
+          disabled={loading}
+          className="flex items-center gap-1 whitespace-nowrap"
+        >
+          <Shuffle className="w-4 h-4" />
+          Random
+        </Button>
+      </div>
+
+      <ScrollArea className="h-[200px]">
+        <div className="grid grid-cols-2 gap-1 pr-4">
+          {songs.map((song) => (
+            <button
+              key={song.title}
+              onClick={() => handleSongSelect(song.title)}
+              className="text-left p-2 rounded hover:bg-gray-100 transition-colors duration-200"
+            >
+              <div className="font-medium text-sm truncate">{song.title}</div>
+              <div className="text-xs text-gray-600 truncate">{song.artist}</div>
+            </button>
+          ))}
+          {loading && (
+            <div className="col-span-2 py-2 text-center text-sm text-gray-500">
+              Loading...
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 
