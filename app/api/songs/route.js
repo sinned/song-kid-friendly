@@ -5,32 +5,6 @@ import path from 'path';
 // Cache the songs data in memory
 let songsCache = null;
 
-const normalizeSong = (song) => {
-  if (!song || typeof song !== 'object') return null;
-
-  // Handle the actual field names from the JSON
-  const title = song['Song Title'] || '';
-  const artist = song['Artist'] || 'Unknown Artist';
-  const lyrics = song['Lyrics'] || '';
-
-  if (!title || !lyrics) return null;
-
-  // Clean up lyrics by removing Genius-specific content
-  const cleanLyrics = lyrics
-    .replace(/See .* LiveGet tickets as low as \$\d+You might also like/g, '')
-    .replace(/\d+Embed$/, '')
-    .trim();
-
-  return {
-    title,
-    artist,
-    lyrics: cleanLyrics,
-    album: song['Album'] || '',
-    year: song['Year'] || '',
-    releaseDate: song['Release Date'] || ''
-  };
-};
-
 const loadSongs = () => {
   if (songsCache) return songsCache;
   
@@ -51,9 +25,10 @@ const loadSongs = () => {
       .map(song => ({
         title: song['Song Title'],
         artist: song['Artist'] || 'Unknown Artist',
-        lyrics: song['Lyrics'].replace(/See .* LiveGet tickets as low as \$\d+You might also like/g, '')
-                             .replace(/\d+Embed$/, '')
-                             .trim(),
+        lyrics: song['Lyrics']
+          .replace(/See .* LiveGet tickets as low as \$\d+You might also like/g, '')
+          .replace(/\d+Embed$/, '')
+          .trim(),
         album: song['Album'] || '',
         year: song['Year'] || '',
         releaseDate: song['Release Date'] || ''
