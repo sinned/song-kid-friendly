@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { sampleSongs } from '@/data/sample-songs';
+import SongSelector from '@/components/SongSelector';
 
 const getColorFromText = (text) => {
   if (!text) return 'bg-gray-50';
@@ -223,7 +224,7 @@ const SongAnalyzer = () => {
   return (
     <div className={`min-h-screen ${getBackgroundColor()} transition-all duration-700`}>
       <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto bg-white">
+        <Card className="max-w-5xl mx-auto bg-white">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-2xl">
@@ -253,32 +254,45 @@ const SongAnalyzer = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Song title (optional)"
-                  className="w-full px-3 py-2 border rounded-md"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-                <Textarea
-                  placeholder="Paste song lyrics here..."
-                  className="min-h-[200px]"
-                  value={lyrics}
-                  onChange={handleLyricsChange}
-                />
-                <div className="flex gap-2 flex-wrap">
-                  <span className="text-sm text-gray-500">Try a sample:</span>
-                  {Object.keys(sampleSongs).map((songName) => (
-                    <Button
-                      key={songName}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => loadSampleSong(songName)}
-                    >
-                      {songName}
-                    </Button>
-                  ))}
+              <div className="flex gap-6">
+                <div className="flex-1 space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Song title (optional)"
+                    className="w-full px-3 py-2 border rounded-md"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                  <Textarea
+                    placeholder="Paste song lyrics here..."
+                    className="min-h-[200px]"
+                    value={lyrics}
+                    onChange={handleLyricsChange}
+                  />
+                  <div className="flex gap-2 flex-wrap">
+                    <span className="text-sm text-gray-500">Try a sample:</span>
+                    {Object.keys(sampleSongs).map((songName) => (
+                      <Button
+                        key={songName}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => loadSampleSong(songName)}
+                      >
+                        {songName}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="w-96">
+                  <SongSelector 
+                    onSongSelect={({ title: songTitle, lyrics: songLyrics }) => {
+                      setTitle(songTitle);
+                      setLyrics(songLyrics);
+                      setResult(null);
+                      setError('');
+                      setRawApiOutput('');
+                    }} 
+                  />
                 </div>
               </div>
               <div className="flex gap-2">
