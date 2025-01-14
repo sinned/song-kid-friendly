@@ -4,7 +4,8 @@ import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 
 const fpClient = new Freeplay({
-  freeplayApiKey: process.env.FREEPLAY_API_KEY
+  freeplayApiKey: process.env.FREEPLAY_API_KEY,
+  baseUrl: "https://app.freeplay.ai/api"
 });
 
 const openai = new OpenAI({
