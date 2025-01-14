@@ -39,7 +39,7 @@ export async function POST(req) {
     let formattedPrompt = await fpClient.prompts.getFormatted({
       projectId: process.env.FREEPLAY_PROJECT_ID,
       templateName: "song_analyzer",
-      environment: "latest",
+      environment: process.env.FREEPLAY_ENVIRONMENT,
       variables: promptVars,
   });
 
