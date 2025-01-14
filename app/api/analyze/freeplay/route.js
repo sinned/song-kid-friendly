@@ -4,14 +4,17 @@ import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 
 const fpClient = new Freeplay({
-  apiKey: process.env.FREEPLAY_API_KEY,
-  baseUrl: "https://app.freeplay.ai/api"
+  freeplayApiKey: process.env.FREEPLAY_API_KEY
 });
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// This POST endpoint analyzes song lyrics using OpenAI and Freeplay.
+// It takes lyrics and an optional title as input, formats them using a Freeplay prompt template,
+// sends the formatted prompt to OpenAI for analysis, and logs the results to Freeplay.
+// The response is returned as a JSON object containing the analysis.
 export async function POST(req) {
   try {
     const { lyrics, title } = await req.json();
@@ -30,12 +33,14 @@ export async function POST(req) {
       lyrics
     };
 
-    const formattedPrompt = await fpClient.prompts.getFormatted({
+    console.log('Freeplay mode - projectId:', process.env.FREEPLAY_PROJECT_ID);
+
+    let formattedPrompt = await fpClient.prompts.getFormatted({
       projectId: process.env.FREEPLAY_PROJECT_ID,
       templateName: "song_analyzer",
-      environment: "prod",
-      variables: promptVars
-    });
+      environment: "latest",
+      variables: promptVars,
+  });
 
     console.log('Freeplay mode - Making OpenAI call...');
     const start = new Date();
