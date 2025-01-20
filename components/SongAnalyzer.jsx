@@ -76,6 +76,7 @@ const SongAnalyzer = () => {
       let endpoint = '/api/analyze';
       if (mode === 'advanced') endpoint += '/advanced';
       if (mode === 'freeplay') endpoint += '/freeplay';
+      if (mode === 'basic_freeplay') endpoint += '/basic-freeplay';
 
       const response = await fetch(endpoint, {
         method: 'POST',

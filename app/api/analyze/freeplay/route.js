@@ -41,7 +41,9 @@ export async function POST(req) {
       templateName: "song_analyzer",
       environment: process.env.FREEPLAY_ENVIRONMENT,
       variables: promptVars,
-  });
+    });
+
+    console.log('Freeplay mode - Formatted prompt received:', formattedPrompt);
 
     console.log('Freeplay mode - Making OpenAI call...');
     const start = new Date();
@@ -66,6 +68,7 @@ export async function POST(req) {
       const sessionId = uuidv4();
       const completionId = uuidv4();
 
+      console.log('Freeplay mode - Logging results to Freeplay...');
       // Log the results asynchronously to Freeplay
       fpClient.recordings.create({
         allMessages: messages,
@@ -80,6 +83,8 @@ export async function POST(req) {
         responseInfo: {
           isComplete: completion.choices[0].finish_reason === 'stop'
         }
+      }).then(() => {
+        console.log('Freeplay mode - Successfully logged to Freeplay');
       }).catch(error => {
         console.error('Freeplay mode - Failed to record to Freeplay:', error);
       });
