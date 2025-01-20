@@ -245,6 +245,7 @@ const SongAnalyzer = () => {
                     className="px-2 py-1 border rounded-md text-sm"
                   >
                     <option value="basic">Basic</option>
+                    <option value="basic_freeplay">Basic w/ Freeplay</option>
                     <option value="advanced">Advanced</option>
                     <option value="freeplay">Freeplay</option>
                   </select>
@@ -320,7 +321,19 @@ const SongAnalyzer = () => {
                     </DialogContent>
                   </Dialog>
                 )}
-                {getResultDisplay()}
+                {mode === 'basic' || mode === 'basic_freeplay' ? (
+                  <div className={`text-2xl font-bold ${
+                    result === 'TRUE' ? 'text-green-600' : 
+                    result === 'FALSE' ? 'text-red-600' : 
+                    'text-gray-600'
+                  }`}>
+                    {result === 'TRUE' ? 'TRUE' : 
+                     result === 'FALSE' ? 'FALSE' : 
+                     'Analyzing...'}
+                  </div>
+                ) : (
+                  getResultDisplay()
+                )}
               </div>
             </div>
           </CardContent>
