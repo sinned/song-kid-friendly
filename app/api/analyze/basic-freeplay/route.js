@@ -54,11 +54,6 @@ export async function POST(req) {
       const content = completion.choices[0].message.content.trim();
       console.log('Basic-Freeplay mode - OpenAI response content:', content);
 
-      // Check if the response is a simple TRUE/FALSE
-      if (content === 'TRUE' || content === 'FALSE') {
-        return NextResponse.json({ result: content });
-      }
-
       // Update messages with the response
       const messages = formattedPrompt.allMessages({
         role: completion.choices[0].message.role,
@@ -71,7 +66,7 @@ export async function POST(req) {
 
       console.log('Basic-Freeplay mode - Logging results to Freeplay...');
       // Log the results asynchronously to Freeplay
-      fpClient.recordings.create({
+      await fpClient.recordings.create({
         allMessages: messages,
         inputs: promptVars,
         sessionInfo: {
@@ -84,12 +79,15 @@ export async function POST(req) {
         responseInfo: {
           isComplete: completion.choices[0].finish_reason === 'stop'
         }
-      }).then(() => {
-        console.log('Basic-Freeplay mode - Successfully logged to Freeplay');
-      }).catch(error => {
-        console.error('Basic-Freeplay mode - Failed to record to Freeplay:', error);
       });
+      console.log('Basic-Freeplay mode - Successfully logged to Freeplay');
 
+      // Check if the response is a simple TRUE/FALSE
+      if (content === 'TRUE' || content === 'FALSE') {
+        return NextResponse.json({ result: content });
+      }
+
+      // If not TRUE/FALSE, try to parse as JSON
       try {
         const parsedResult = JSON.parse(content);
         return NextResponse.json({ 
